@@ -6,8 +6,11 @@ import math
 
 
 def calcula_n(x,y):
-    np.var
-    math.ceil((1.96 ** 2) * vr / (0.0005 ** 2))
+    tn=np.array([])
+    for i in range(100):
+        tn=np.append(tn,sum(calcula_func(x,y,1000)/1000))
+    var=np.var(tn,ddof=1)
+    return(math.ceil((1.96 ** 2) * var / (0.0005 ** 2)))
 def calcula_func(x,y,n):
     v=x+y
 
@@ -47,12 +50,12 @@ if __name__ == "__main__":
             y = np.append(y, int(input(f"Digite o valor y{i} do vetor y: ")))
 
 
-        n_de_thetas = calcula_n_final(x, y)
+        ntheta= calcula_n(x, y)
 
-        print("Número de thetas que serão gerados: ", n_de_thetas)
+        print("Número de thetas que serão gerados: ", ntheta)
 
         # calcula a f_theta e ordena os resultados
-        fs_ordenados = calcula_f(x, y, n_de_thetas)
+        fs_ordenados = calcula_func(x, y, ntheta)
 
         # função que retorna a estimativa da função W(v)
         U = lambda v: estima_W(fs_ordenados, v)
