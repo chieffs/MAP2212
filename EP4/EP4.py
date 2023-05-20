@@ -1,58 +1,32 @@
+import math
+
 import numpy as np
 from scipy.special import gamma
+import math
 
 
-def calcula_n_final(x, y, seed=42):  # calcula número de thetas que serão gerados
+def calcula_n(x,y):
+    np.var
+    math.ceil((1.96 ** 2) * vr / (0.0005 ** 2))
+def calcula_func(x,y,n):
+    v=x+y
 
-    n_ini = 1000  # número inicial de thetas para amostra piloto
+    theta=np.random.dirichlet(v,n)
 
-    v1_s = []  # lista que vai guardar a média entre os primeiros dois f(theta)
+    prod=np.array([])
+    for i in range(len(theta)):
+        prod= np.append(prod, np.prod(np.power(theta[i], v - 1)))
 
-    for i in range(100):  # realiza 100 repetições do experimento
+    c=1/((np.prod(gamma(v))) / (gamma(sum(v))))
 
-        fs = calcula_f(x, y, n_ini, i)  # calcula a f_theta
+    return(np.sort(prod*c))
 
-        # tira a média entre os dois primeiros f_theta
-        # que já foram ordenados na função calcula_f
-        v1_s.append((fs[0] + fs[1]) / 2)
-
-    vr = np.var(v1_s, ddof=1)  # calcula a variância da média dos dois primeiros f_thetas
-
-    # calcula o n_final
-    n_final = int((1.96 ** 2) * vr / (0.0005 ** 2))
-
-    return n_final
-
-
-def calcula_f(x, y, n, seed=42):
-    np.random.seed(seed=seed)
-
-    a = x + y  # soma os vetores de entrada x e y
-
-    thetas = np.random.dirichlet(a, n)  # gera thetas de uma dirichelt
-
-    produtorio = np.array([])
-
-    # calcula o produtório da f_theta
-    for i in range(len(thetas)):
-        produtorio = np.append(produtorio, np.prod(np.power(thetas[i], a - 1)))
-
-    # calcula a constante de normalização
-    c = 1 / ((np.prod(gamma(a))) / (gamma(sum(a))))
-
-    # multiplica a constante pela resultado do produtório
-    f_thetas = c * produtorio
-
-    # retorna os f_thetas ordenados
-    return np.sort(f_thetas)
-
-
-def estima_W(f_ord, v):
+def estima_W(f, v):
     # determina quantos pontos estão abaixo de um determinado v
-    n = np.searchsorted(f_ord, v=v)
+    n = np.searchsorted(f, v=v)
 
     # tamanho do vetor que guarda os f_thetas ordenados
-    N = len(f_ord)
+    N = len(f)
 
     # retorna a estimativa
     return n / N
@@ -66,11 +40,11 @@ if __name__ == "__main__":
 
         # solicita entra do vetor x
         for i in range(3):
-            x = np.append(x, int(input(f"Entre com x{i}: ")))
+            x = np.append(x, int(input(f"Digite o valor x{i} do vetor x: ")))
 
         # solicita entra do vetor y
         for i in range(3):
-            y = np.append(y, int(input(f"Entre com y{i}: ")))
+            y = np.append(y, int(input(f"Digite o valor y{i} do vetor y: ")))
 
 
         n_de_thetas = calcula_n_final(x, y)
