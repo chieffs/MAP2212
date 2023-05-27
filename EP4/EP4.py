@@ -2,13 +2,12 @@ import math
 
 import numpy as np
 from scipy.special import gamma
-import math
-
+import matplotlib.pyplot as plt
 
 def calcula_n(x,y):
     tn=np.array([])
     for i in range(100):
-        tn=np.append(tn,sum(calcula_func(x,y,1000)/1000))
+        tn=np.append(tn,sum(calcula_func(x,y,100)[0:1]/2))
     var=np.var(tn,ddof=1)
     return(math.ceil((1.96 ** 2) * var / (0.0005 ** 2)))
 def calcula_func(x,y,n):
@@ -35,6 +34,7 @@ def estima_W(f, v):
     return n / N
 
 
+
 if __name__ == "__main__":
     while True:  # loop principal do programa que executa até o usuário sair
 
@@ -49,7 +49,6 @@ if __name__ == "__main__":
         for i in range(3):
             y = np.append(y, int(input(f"Digite o valor y{i} do vetor y: ")))
 
-
         ntheta= calcula_n(x, y)
 
         print("Número de thetas que serão gerados: ", ntheta)
@@ -59,7 +58,13 @@ if __name__ == "__main__":
 
         # função que retorna a estimativa da função W(v)
         U = lambda v: estima_W(fs_ordenados, v)
-
+        a=np.array([0])
+        n=np.array([0])
+        for i in range(0,2*(int(fs_ordenados[-1]+3))):
+            a=np.append(a,U(i/2))
+            n=np.append(n,i/2)
+        plt.plot(n,a)
+        plt.show()
         # loop secundário que executa até o usuário decidir trocar os vetores x e y
         while True:
 
@@ -69,7 +74,7 @@ if __name__ == "__main__":
             # retorna a estimativa na tela
             print(f"U({v})= {U(v)}")
 
-            print("\nGostaria de calcular uma nova estimativa da U(v)? (s/n)")
+            print("\nQuer calcular uma nova estimativa (s/n)")
 
             sn_v = input().lower()
 
@@ -77,7 +82,7 @@ if __name__ == "__main__":
 
             print()
 
-        print('Gostaria de inserir novos vetores de entrada para gerar uma nova U(v)? (s/n)')
+        print('Quer mudar os vetores utilizados? (s/n)')
 
         sn = input().lower()
 
