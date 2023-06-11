@@ -58,30 +58,29 @@ def cria_cov(alfa):
 
     return M
 
-
+@njit
 def met_ac(pontos,p,b,alfa):
-    for i in range(len(b)):
+    for i in range(1,len(pontos)):
         ponto_atual = np.array \
-            ([pontos[-1][0] + p[i,0], pontos[-1][1] + p[i,1], 1.0 - (pontos[-1][0] + p[i,0] + pontos[-1][1] + p[i,1])])
+            ([pontos[i-1][0] + p[i,0], pontos[i-1][1] + p[i,1], 1.0 - (pontos[i-1][0] + p[i,0] + pontos[i-1][1] + p[i,1])])
         # algoritmo de aceitação de Metropolis
         ac = min(1, dir_pdf(ponto_atual, alfa) /
-                 dir_pdf(pontos[-1], alfa))
+                 dir_pdf(pontos[i-1], alfa))
         if ac >= b[i]:
-            pontos = np.append(pontos, np.array(ponto_atual, ndmin=2), axis=0)
+            pontos[i] = ponto_atual
         else:
-            pontos = np.append(pontos, np.array(pontos[-1], ndmin=2), axis=0)
+            pontos[i] = pontos[i-1]
 
     return pontos
 
 def gera_dir(alfa=[5, 5, 5], n=100, burnin=1000):
-    pontos = np.array([[1/3,1/3,1/3]])  # ponto inicial da cadeia de Markov
+    pontos = np.array([[1/3,1/3,1/3] for _ in range(burnin+n)])  # ponto inicial da cadeia de Markov
     k = 0  # contador de pontos aceitos
     # multiplica matriz de covariância por constante ótima
     M=cria_cov(alfa)* (2.38 ** 2) / 2
     p = np.random.multivariate_normal([0, 0], M,size=n+burnin)  # gera da Normal Multivariada
     b= np.random.uniform(0,1,size=n+burnin)
     dir=met_ac(pontos,p,b,alfa)
-    print(dir[burnin])
     return dir[burnin:]
 
 
