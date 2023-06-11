@@ -25,6 +25,7 @@ ws = {
     "last_vlevel": None,
     "f_theta": None,
     "seed": None,
+    "u_size":None,
 }
 
 
@@ -34,7 +35,7 @@ def theta_dirichlet(alpha, n=None):
     nsize = n if n > 3 else 3
     return np.random.dirichlet(alpha, nsize)
 
-@njit(fastmath=True,)
+@njit(nogil=True)
 def dir_pdf(x, a):
     if ((x < 0).any()): return 0.0
     t=np.empty_like(x)
@@ -42,7 +43,7 @@ def dir_pdf(x, a):
         t[i]=np.power(x[i],(a[i]-1))
     return np.prod(t)
 
-@njit(fastmath=True)
+@njit
 def cria_cov(alfa):
     M = np.array([[0.0, 0.0],[0.0,0.0]])
 
@@ -58,7 +59,7 @@ def cria_cov(alfa):
 
     return M
 
-@njit(fastmath=True)
+@njit
 def met_ac(pontos,p,b,alfa):
     for i in range(1,len(pontos)):
         ponto_atual = np.array \
@@ -122,6 +123,7 @@ def f_theta_density():
     ws["f_theta"] = theta
     ws["first_vlevel"] = theta[0]
     ws["last_vlevel"] = theta[-1]
+    ws["u_size"]=len(np.unique(theta))
 
 
 def u_estimate(v_level):
@@ -133,7 +135,7 @@ def u_estimate(v_level):
 def weight_bin(k):
     """Calcula o peso de um corte.
     """
-    return u_estimate(ws["f_theta"][k]) - u_estimate(ws["f_theta"][k - 1])
+    return u_estimate(np.unique(ws["f_theta"][k])) - u_estimate(np.unique(ws["f_theta"][k-1]))
 
 
 def simulation():
@@ -268,17 +270,17 @@ def display_prompt_bin():
     #  Recebe o nível de corte para a estimativa da integral
     while True:
         try:
-            MSG = f"\n[+] Informe um bin entre 1 e {ws['sample_size']-1} para consultar o peso\n    >>> "
+            MSG = f"\n[+] Informe um bin entre 1 e {ws['u_size']-1} para consultar o peso\n    >>> "
             input_bin = int(input(MSG))
-            if input_bin < 1 or input_bin > ws['sample_size']-1: raise
-
+            if input_bin < 1 or input_bin > ws['u_size']-1: raise
+            bins=np.unique[ws["f_theta"]]
             wbin = weight_bin(input_bin)
             len_bin = ws["sample_size"]
-            top_bin = ws['f_theta'][input_bin]
-            bottom_bin = ws['f_theta'][input_bin-1]
+            top_bin = bins[input_bin]
+            bottom_bin = bins[input_bin-1]
 
             print((f"{f'    ==> O bin {input_bin} possui extremidades ':<60}"
-                   f" = ({ws['f_theta'][input_bin-1]:.6f}, {ws['f_theta'][input_bin]:.6f})"))
+                   f" = ({bins[input_bin-1]:.6f}, {bins[input_bin]:.6f})"))
             print((f"{f'    ==> U({top_bin:.6f}) - U({bottom_bin:.6f})   ':<60} = {wbin:.15f}"))
             print((f"{f'    ==> W({top_bin:.6f}) - W({bottom_bin:.6f}) ~ 1/k (k = {len_bin})   ':<60} = {1/len_bin:.15f}"))
             print((f"{f'    ==> Erro relativo da U() em relação à W()':<60} = {abs(wbin - (1/len_bin))/(1/len_bin)*100:.5f}%"))
