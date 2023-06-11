@@ -34,7 +34,7 @@ def theta_dirichlet(alpha, n=None):
     nsize = n if n > 3 else 3
     return np.random.dirichlet(alpha, nsize)
 
-@njit
+@njit(fastmath=True,)
 def dir_pdf(x, a):
     if ((x < 0).any()): return 0.0
     t=np.empty_like(x)
@@ -42,7 +42,7 @@ def dir_pdf(x, a):
         t[i]=np.power(x[i],(a[i]-1))
     return np.prod(t)
 
-@njit
+@njit(fastmath=True)
 def cria_cov(alfa):
     M = np.array([[0.0, 0.0],[0.0,0.0]])
 
@@ -58,7 +58,7 @@ def cria_cov(alfa):
 
     return M
 
-@njit
+@njit(fastmath=True)
 def met_ac(pontos,p,b,alfa):
     for i in range(1,len(pontos)):
         ponto_atual = np.array \
@@ -72,6 +72,7 @@ def met_ac(pontos,p,b,alfa):
             pontos[i] = pontos[i-1]
 
     return pontos
+
 
 def gera_dir(alfa=[5, 5, 5], n=100, burnin=1000):
     pontos = np.array([[1/3,1/3,1/3] for _ in range(burnin+n)])  # ponto inicial da cadeia de Markov
@@ -91,7 +92,7 @@ def generate_sample(alpha, n=None):
 
     c = 1 / ((np.prod(gamma(alpha))) / (gamma(sum(alpha))))
 
-    return np.unique([dir_pdf(theta,alpha)*c for theta in gera_dir(alpha, nsize)])
+    return np.sort([dir_pdf(theta,alpha)*c for theta in gera_dir(alpha, nsize)])
 
 def sample_simulation(alpha, a=None, n=0):
     """Gera uma quantidade de amostras de densidade de probabilidade da distribuição Dirichlet.
@@ -107,7 +108,7 @@ def get_sample_size(data_simulation):
     """
     ERROR = 0.0005
     CI = 1.96
-    sample_data = [np.mean(single_sample[0:2]) for single_sample in data_simulation]
+    sample_data = [np.mean(single_sample) for single_sample in data_simulation]
     variance = np.var(sample_data,ddof=1)
     #  Atualiza a área de Workstorage
     ws['sample_size'] = math.floor((CI ** 2 * variance) / ERROR ** 2)
