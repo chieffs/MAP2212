@@ -43,7 +43,7 @@ def dir_pdf(x, a):
         t[i]=np.power(x[i],(a[i]-1))
     return np.prod(t)
 
-@njit
+@njit(nogil=True)
 def cria_cov(alfa):
     M = np.array([[0.0, 0.0],[0.0,0.0]])
 
@@ -59,7 +59,7 @@ def cria_cov(alfa):
 
     return M
 
-@njit
+@njit(nogil=True)
 def met_ac(pontos,p,b,alfa):
     for i in range(1,len(pontos)):
         ponto_atual = np.array \
@@ -273,7 +273,7 @@ def display_prompt_bin():
             MSG = f"\n[+] Informe um bin entre 1 e {ws['u_size']-1} para consultar o peso\n    >>> "
             input_bin = int(input(MSG))
             if input_bin < 1 or input_bin > ws['u_size']-1: raise
-            bins=np.unique[ws["f_theta"]]
+            bins=np.unique(ws["f_theta"])
             wbin = weight_bin(input_bin)
             len_bin = ws["sample_size"]
             top_bin = bins[input_bin]
