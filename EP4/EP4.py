@@ -5,20 +5,17 @@ from scipy.special import gamma
 import matplotlib.pyplot as plt
 
 def calcula_n(x,y):
-    tn=np.array([])
-    for i in range(100):
-        tn=np.append(tn,sum(calcula_func(x,y,100)[0:1]/2))
-    var=np.var(tn,ddof=1)
-    return(math.ceil((1.96 ** 2) * var / (0.0005 ** 2)))
+    tn=[sum(calcula_func(x,y,100)/100) for i in range(100)]
+    tn=np.array(tn)
+    print(tn)
+    var=np.var(tn,ddof=2)
+    return(int((1.96 ** 2) * var / (0.0005 ** 2)))
 def calcula_func(x,y,n):
     v=x+y
 
     theta=np.random.dirichlet(v,n)
-
-    prod=np.array([])
-    for i in range(len(theta)):
-        prod= np.append(prod, np.prod(np.power(theta[i], v - 1)))
-
+    prod= [np.prod(np.power(theta[i], v - 1)) for i in range(n)]
+    prod=np.array(prod)
     c=1/((np.prod(gamma(v))) / (gamma(sum(v))))
 
     return(np.sort(prod*c))
@@ -27,13 +24,15 @@ def estima_W(f, v):
     # determina quantos pontos estão abaixo de um determinado v
     n = np.searchsorted(f, v=v)
 
+    b=[f[0:n],f[n:-1]]
+    while(b[1]-b[0]>1/len(b)):
+        mb = np.searchsorted(f, v=max(b))
+        b=[b[0:mb-1],b[mb][0:int(len(b[mb])/2)],b[mb][int(len(b[mb])/2):-1],b[mb+1:-1]]
     # tamanho do vetor que guarda os f_thetas ordenados
     N = len(f)
 
     # retorna a estimativa
     return n / N
-
-
 
 if __name__ == "__main__":
     while True:  # loop principal do programa que executa até o usuário sair
