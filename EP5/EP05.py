@@ -135,7 +135,7 @@ def u_estimate(v_level):
 def weight_bin(k):
     """Calcula o peso de um corte.
     """
-    return u_estimate(np.unique(ws["f_theta"][k])) - u_estimate(np.unique(ws["f_theta"][k-1]))
+    return u_estimate(np.unique(ws["f_theta"])[k]) - u_estimate(np.unique(ws["f_theta"])[k-1])
 
 
 def simulation():
@@ -275,7 +275,7 @@ def display_prompt_bin():
             if input_bin < 1 or input_bin > ws['u_size']-1: raise
             bins=np.unique(ws["f_theta"])
             wbin = weight_bin(input_bin)[0]
-            len_bin = ws["sample_size"]
+            len_bin = ws["u_size"]
             top_bin = bins[input_bin]
             bottom_bin = bins[input_bin-1]
 
