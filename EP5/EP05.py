@@ -275,7 +275,7 @@ def display_prompt_bin():
             if input_bin < 1 or input_bin > ws['u_size']-1: raise
             bins=np.unique(ws["f_theta"])
             wbin = weight_bin(input_bin)
-            len_bin = ws["u_size"]
+            len_bin = ws["sample_size"]
             top_bin = bins[input_bin]
             bottom_bin = bins[input_bin-1]
 
